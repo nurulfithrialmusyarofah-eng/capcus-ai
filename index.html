@@ -29,11 +29,10 @@
         <h2>⚡ CapCus.AI</h2>
         <p>Aplikasi web asisten pemasaran otomatis berbasis AI untuk membantu digitalisasi promosi produk UMKM.</p>
 
-        <!-- KOTAK AMAN: Pengguna/Juri memasukkan API Key secara mandiri -->
         <div class="api-box">
             <label for="apiKey" style="color: #b45309;">🔑 Masukkan API Key Gemini Anda:</label>
             <input type="password" id="apiKey" placeholder="Tempelkan API Key Anda di sini">
-            <small style="font-size: 11px; color: #b45309;">*Kunci Anda aman, diproses langsung di browser tanpa disimpan.</small>
+            <small style="font-size: 11px; color: #b45309;">*Mendukung format kunci baru (AQ.) secara aman.</small>
         </div>
 
         <label for="namaProduk">Nama Produk UMKM:</label>
@@ -50,7 +49,7 @@
 
     <script>
         async function buatCaption() {
-            const apiKeyInput = document.getElementById('apiKey').value;
+            const apiKeyInput = document.getElementById('apiKey').value.trim();
             const produk = document.getElementById('namaProduk').value;
             const keunggulan = document.getElementById('keunggulan').value;
             const tempatHasil = document.getElementById('hasil');
@@ -65,7 +64,7 @@
                 return;
             }
 
-            tempatHasil.innerHTML = '<span style="color: #16a34a; font-weight: bold;">CapCus.AI sedang merangkai kata langsung dari server Google... Mohon tunggu sekilas...</span>';
+            tempatHasil.innerHTML = '<span style="color: #16a34a; font-weight: bold;">CapCus.AI sedang menghubungi server Google... Mohon tunggu beberapa detik...</span>';
 
             const url = `https://googleapis.com{apiKeyInput}`;
 
@@ -74,21 +73,29 @@
             try {
                 const tanggapan = await fetch(url, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: perintahPrompt }] }] })
+                    headers: { 
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ 
+                        contents: [{ 
+                            parts: [{ text: perintahPrompt }] 
+                        }] 
+                    })
                 });
 
                 const hasilJson = await tanggapan.json();
                 
-                if (hasilJson.candidates && hasilJson.candidates[0].content && hasilJson.candidates[0].content.parts) {
+                if (hasilJson.candidates && hasilJson.candidates[0] && hasilJson.candidates[0].content && hasilJson.candidates[0].content.parts && hasilJson.candidates[0].content.parts[0]) {
                     const teksAsliAI = hasilJson.candidates[0].content.parts[0].text;
                     tempatHasil.innerHTML = `<div class="pesan-ai">${teksAsliAI}</div>`;
+                } else if (hasilJson.error) {
+                    tempatHasil.innerText = "Error dari Google: " + hasilJson.error.message;
                 } else {
-                    tempatHasil.innerText = "Aduh, Google AI sedang sibuk atau kunci API salah. Silakan periksa kembali ya.";
+                    tempatHasil.innerText = "Aduh, Google AI sedang sibuk. Silakan coba klik tombol sekali lagi.";
                 }
 
             } catch (error) {
-                tempatHasil.innerText = "Waduh, koneksi bermasalah atau API Key Anda salah / tidak valid. Silakan periksa kembali.";
+                tempatHasil.innerText = "Terjadi masalah jaringan atau API Key Anda salah. Silakan periksa kembali.";
             }
         }
     </script>
