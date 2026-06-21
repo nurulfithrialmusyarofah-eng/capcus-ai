@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Wajib: Tanda Pengenal Akun Dicoding Anda -->
+    <meta name="dicoding:email" content="nurulfithri320@gmail.com">
+    
+    <title>CapCus.AI - Generator Caption UMKM</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 15px; max-width: 480px; margin: auto; background-color: #f4fbf7; color: #2d3748; }
+        .container { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.08); margin-top: 10px; }
+        h2 { color: #16a34a; margin: 0 0 5px 0; font-size: 24px; font-weight: 700; }
+        p { font-size: 14px; color: #718096; margin: 0 0 20px 0; line-height: 1.4; }
+        label { font-size: 13px; font-weight: 600; color: #4a5568; margin-top: 10px; display: block; }
+        input { width: 100%; padding: 12px; margin-top: 5px; margin-bottom: 5px; box-sizing: border-box; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px; background-color: #f8fafc; }
+        input:focus { border-color: #16a34a; outline: none; background-color: #fff; }
+        .api-box { background-color: #fffbeb; border: 1px solid #fef3c7; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
+        button { width: 100%; padding: 14px; margin-top: 15px; box-sizing: border-box; border-radius: 8px; background-color: #16a34a; color: white; border: none; font-weight: bold; cursor: pointer; font-size: 15px; }
+        button:hover { background-color: #15803d; }
+        h3 { font-size: 15px; margin-top: 25px; margin-bottom: 5px; color: #2d3748; }
+        #hasil { background: #f8fafc; padding: 15px; border-left: 5px solid #16a34a; border-radius: 8px; color: #334155; font-size: 14px; line-height: 1.6; min-height: 60px; word-wrap: break-word; }
+        .pesan-ai { white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>⚡ CapCus.AI</h2>
+        <p>Aplikasi web asisten pemasaran otomatis berbasis AI untuk membantu digitalisasi promosi produk UMKM.</p>
+
+        <!-- KOTAK AMAN: Pengguna/Juri memasukkan API Key secara mandiri -->
+        <div class="api-box">
+            <label for="apiKey" style="color: #b45309;">🔑 Masukkan API Key Gemini Anda:</label>
+            <input type="password" id="apiKey" placeholder="Tempelkan API Key Anda di sini">
+            <small style="font-size: 11px; color: #b45309;">*Kunci Anda aman, diproses langsung di browser tanpa disimpan.</small>
+        </div>
+
+        <label for="namaProduk">Nama Produk UMKM:</label>
+        <input type="text" id="namaProduk" placeholder="Contoh: Keripik Singkong Pedas Nyonyah">
+        
+        <label for="keunggulan">Keunggulan Utama Produk:</label>
+        <input type="text" id="keunggulan" placeholder="Contoh: Sangat renyah, bumbu melimpah, tanpa pengawet">
+        
+        <button onclick="buatCaption()">Bikin Caption Otomatis</button>
+
+        <h3>Hasil Caption Jualan (Real-Time AI):</h3>
+        <div id="hasil"><span style="color: #a0aec0;">Teks promosi dari AI asli akan muncul di sini...</span></div>
+    </div>
+
+    <script>
+        async function buatCaption() {
+            const apiKeyInput = document.getElementById('apiKey').value;
+            const produk = document.getElementById('namaProduk').value;
+            const keunggulan = document.getElementById('keunggulan').value;
+            const tempatHasil = document.getElementById('hasil');
+
+            if(!apiKeyInput) {
+                alert("Harap masukkan API Key Gemini Anda terlebih dahulu di kotak kuning!");
+                return;
+            }
+
+            if(!produk || !keunggulan) {
+                alert("Harap isi nama produk dan keunggulannya dulu ya!");
+                return;
+            }
+
+            tempatHasil.innerHTML = '<span style="color: #16a34a; font-weight: bold;">CapCus.AI sedang merangkai kata langsung dari server Google... Mohon tunggu sekilas...</span>';
+
+            const url = `https://googleapis.com{apiKeyInput}`;
+
+            const perintahPrompt = `Buatkan caption promosi media sosial (WhatsApp dan Instagram) yang sangat menarik, persuasif, dan kreatif untuk produk bernama "${produk}" dengan keunggulan "${keunggulan}". Gunakan bahasa Indonesia yang santai, tambahkan emoji yang relevan, serta sertakan hashtag di bagian akhir.`;
+
+            try {
+                const tanggapan = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: perintahPrompt }] }] })
+                });
+
+                const hasilJson = await tanggapan.json();
+                
+                if (hasilJson.candidates && hasilJson.candidates[0].content && hasilJson.candidates[0].content.parts) {
+                    const teksAsliAI = hasilJson.candidates[0].content.parts[0].text;
+                    tempatHasil.innerHTML = `<div class="pesan-ai">${teksAsliAI}</div>`;
+                } else {
+                    tempatHasil.innerText = "Aduh, Google AI sedang sibuk atau kunci API salah. Silakan periksa kembali ya.";
+                }
+
+            } catch (error) {
+                tempatHasil.innerText = "Waduh, koneksi bermasalah atau API Key Anda salah / tidak valid. Silakan periksa kembali.";
+            }
+        }
+    </script>
+</body>
+</html>
