@@ -73,19 +73,13 @@
             try {
                 const tanggapan = await fetch(url, {
                     method: "POST",
-                    headers: { 
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ 
-                        contents: [{ 
-                            parts: [{ text: perintahPrompt }] 
-                        }] 
-                    })
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: perintahPrompt }] }] })
                 });
 
                 const hasilJson = await tanggapan.json();
                 
-                if (hasilJson.candidates && hasilJson.candidates[0] && hasilJson.candidates[0].content && hasilJson.candidates[0].content.parts && hasilJson.candidates[0].content.parts[0]) {
+                if (hasilJson.candidates && hasilJson.candidates[0].content && hasilJson.candidates[0].content.parts) {
                     const teksAsliAI = hasilJson.candidates[0].content.parts[0].text;
                     tempatHasil.innerHTML = `<div class="pesan-ai">${teksAsliAI}</div>`;
                 } else if (hasilJson.error) {
